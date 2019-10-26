@@ -34,7 +34,7 @@ axialDistance = 100000
 wavelength = 500 * 10 ** (-9)
 waistRadius = 0.13
 pQNumber = 0
-lQNumber = 3
+lQNumber = 9
 
 #Generating the arrays of distance and angle
 distance = np.zeros((res,res))
@@ -44,7 +44,7 @@ for i in range(0, res):
         x = (i - (res / 2) + 0.5)
         y = (j - (res / 2) - 0.5)
         distance[i,j] = np.sqrt(x**2 + y**2) * scale
-        angle[i,j] = np.arctan(x / y)
+        angle[i,j] = np.arctan(x / (y))
 
 #Generating the intensity map
 Intensity = np.zeros((res,res))
