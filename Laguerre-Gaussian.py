@@ -22,43 +22,47 @@ def R(r, z, l, p, wz, k, zr):
     '''Fucntion to calculate the radial part of a beam'''
     return np.sqrt( (2*np.math.factorial(p)) / (np.pi*np.math.factorial(p + np.abs(l))) ) * (1/wz) * (r*np.sqrt(2)/wz) ** np.abs(l) * np.exp(-(r/wz)**2) * np.exp(-0.5j*k*z*r**2/(z**2 + zr**2))
 
-def intensityGen(r, z, l, p, wz, k, zr, phi):
+def intensityGenR(r, z, l, p, wz, k, zr, phi):
     '''Fucntion to calculate the intensity at a given point'''
     return 2 * np.abs(R(r, z, l, p, wz, k, zr)**2) * (1 + np.cos(2*l*phi))
 
-#Constants
-res = 512 #Number of pixels N, in a N x N image
-realSize = 1 #Diameter in m of the image
-scale = realSize / res
-axialDistance = 100000
-wavelength = 500 * 10 ** (-9)
-waistRadius = 0.13
-pQNumber = 0
-lQNumber = 9
+def Ulp(r, z, l, p, wz, k, zr, phi):
+    return np.sqrt( (2*np.math.factorial(p)) / (np.pi*np.math.factorial(p + np.abs(l))) ) * (1/wz) * (r*np.sqrt(2)/wz) ** np.abs(l) \
+        * np.exp(-(r/wz)**2) * np.exp(-0.5j*k*z*r**2/(z**2 + zr**2)) * np.exp(-1j*l*phi) * np.exp(1j*(np.abs(l)+2*p+1)*np.arctan(z/zr))
 
-#Generating the arrays of distance and angle
-distance = np.zeros((res,res))
-angle = np.zeros((res,res))
-for i in range(0, res):
-    for j in range(0, res):
-        x = (i - (res / 2) + 0.5)
-        y = (j - (res / 2) - 0.5)
-        distance[i,j] = np.sqrt(x**2 + y**2) * scale
-        angle[i,j] = np.arctan(x / (y))
+def intensityGenU(r, z, l, p, wz, k, zr, phi):
+    '''Fucntion to calculate the intensity at a given point'''
+    return np.abs(Ulp(r, z, l, p, wz, k, zr, phi)+Ulp(r, z, -l, p, wz, k, zr, phi))**2
 
-#Generating the intensity map
-Intensity = np.zeros((res,res))
-rayleighRange = zR(waistRadius, wavelength)
-spotSizeParam = wZ(waistRadius, axialDistance, rayleighRange)
-waveNumber = k(wavelength)
+def distances(N, sca):
+    distance = np.zeros((N,N))
+    for i in range(0, N):
+        for j in range(0, N):
+            x = (i - (N / 2) + 0.5)
+            y = (j - (N / 2) - 0.5)
+            distance[i,j] = np.sqrt(x**2 + y**2) * sca
+    return distance
 
-for i in range(0, res):
-    for j in range(0, res):
-        Intensity[i,j] = intensityGen(distance[i,j], axialDistance, lQNumber, pQNumber, spotSizeParam, waveNumber, rayleighRange, angle[i,j])
+def angles(N):
+    angle = np.zeros((N,N))
+    for i in range(0, N):
+        for j in range(0, N):
+            x = (i - (N / 2) + 0.5)
+            y = (j - (N / 2) - 0.5)
+            angle[i,j] = np.arctan(x / y)
+    return angle
+       
+def CMgraph(Data):
+    plt.figure()
+    im = plt.imshow( Data, cmap = cm.viridis)
+    im.axes.get_xaxis().set_visible(False)
+    im.axes.get_yaxis().set_visible(False)
+    plt.show()
 
-#Graph Plotting
-plt.figure()
-im = plt.imshow(Intensity, cmap = cm.viridis)
-im.axes.get_xaxis().set_visible(False)
-im.axes.get_yaxis().set_visible(False)
-plt.show()
+def CMgraphBar(Data, Label):
+    plt.figure()
+    im = plt.imshow( Data, cmap = cm.viridis)
+    im.axes.get_xaxis().set_visible(False)
+    im.axes.get_yaxis().set_visible(False)
+    plt..colorbar(im, orientation = 'vertical', label = Label)
+    plt.show()
