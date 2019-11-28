@@ -64,5 +64,5 @@ def CMgraphBar(Data, Label):
     im = plt.imshow( Data, cmap = cm.viridis)
     im.axes.get_xaxis().set_visible(False)
     im.axes.get_yaxis().set_visible(False)
-    plt..colorbar(im, orientation = 'vertical', label = Label)
+    plt.colorbar(im, orientation = 'vertical', label = Label)
     plt.show()
