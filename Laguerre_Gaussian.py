@@ -51,6 +51,22 @@ def angles(N):
             y = (j - (N / 2) - 0.5)
             angle[i,j] = np.arctan(x / y)
     return angle
+
+def UGen(waistRatio, wavelength, zInital, nPix, frameSize, quantumL):
+    waveNumber = 2*np.pi/wvl
+    rayleighRange0 = zR(waistRatio, wavelength)
+    spotSizeParam0 = wZ(waistRatio, zInital, rayleighRange0)
+    ui = np.zeros((nPix,nPix), dtype = 'complex128')
+    Dist = distances(nPix, frameSize/nPix)
+    Angl = angles(nPix)
+    for i in range(0, nPix):
+        for j in range(0, nPix):
+            ui[i,j] = Ulp(Dist[i,j], zInital,  quantumL, 0, spotSizeParam0, waveNumber, rayleighRange0, Angl[i,j])
+    return ui
+
+def waveMerge(u1, u2):
+    I = np.abs(u1 + u2) ** 2
+    return I
        
 def CMgraph(Data):
     plt.figure()
